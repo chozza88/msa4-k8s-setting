@@ -1,0 +1,28 @@
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: gateway
+  # 해당 리소스가 배포될 네임스페이스 지정(NGF에서 지정한 네임스페이스와 동일해야한다.)
+  namespace: nginx-gateway-fabric
+spec:
+  # 해당 게이트웨이가 실제로 구동하고 처리한 컨트롤러(GatewayClass)를 nginx로 지정
+  gatewayClassName: nginx
+  # 외부에서 들어오는 트래픽을 수신할 네트워크 포트와 프로토콜 규칙을 정의
+  listeners:
+    # 리스너의 ID 지정
+  - name: client
+    #5173 포트로 들어오는 트래픽을 수신하기 위한 설정
+    port: 5173
+    # 트래픽 프로토콜을 HTTP로 지정
+    protocol: HTTP
+    # 해당 리스너에 연결할 수 있는 HTTPRoute 범위 설정
+    allowedRoutes:
+      namespaces:
+        # 클러스트 내의 모든 네임스페이스에서 해당 리스너를 참조하고 라우팅 처리하도록 지정
+        from: All
+  - name: scg
+    port: 8080
+    protocol: HTTP
+    allowedRoutes:
+      namespaces:
+        from: All
