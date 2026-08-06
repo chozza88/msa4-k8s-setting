@@ -1,0 +1,35 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: scg-app
+  namespace: argocd
+spec: 
+  # ArgoCD의 App Project명
+  # 프로젝트 별로 배포 가능한 저장소/클러스트/네임스페이스 등을 제한하기 위힌 속성
+  project: default
+  # 매니페스트를 가져올 소스(git repository) 정보
+  source:
+    # 매니페스트 파일이 있는 레파지토리
+    repoURL: git@github.com:chozza88/msa4-k8s-manifest.git
+    # 추적할 브런치/태그/커밋
+    targetRevision: master
+    # 저장소 안에서 배포할 매니페스트가 있는 하위 경로 지정
+    path: scg
+  # 매니패스트를 실제로 적용(배포) 할 대상 네임스페이스/클러스터 
+  destination:
+    # 대상 클러스터의 API 서버 주소
+    server: https://kubernetes.default.svc
+    # 배포 대상 네임스페이스
+    namespace: msa4-meerkatgram
+  # Git의 변경사항을 클러스터에 반영하는 동기화 정책
+  syncPolicy:
+    # git 변경 사항을 자동으로 클러스터에 반영하기 위한 필드
+    automated:
+      # git에서 삭제된 리소스를 클러스터에서 어떻게 처리할건가? (true: 자동으로 삭제처리)
+      prune: true
+      # 클러스터에서 직접 수동으로 변경한 내용이 있어도 git의 상태로 자동으로 되돌리는 속성(true: 자동으로 되돌림)
+      selfHeal: true 
+    # 동기화 작업시 추가 옵션 목록
+    syncOptions:
+      # destination.namespace가 없을 경우 자동으로 생성
+      - CreateNamespace=true
